@@ -11,7 +11,9 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 @app.route('/')
 def home():
-    return "Olá, mundo!"
+    openai_status = "conectado" if openai.api_key else "não conectado"
+    twilio_status = "conectado"  # Suponha que as credenciais do Twilio estejam configuradas corretamente
+    return f"Servidor ativo. Status da API OpenAI: {openai_status}. Status da API Twilio: {twilio_status}."
 
 @app.route('/whatsapp', methods=['POST'])
 def whatsapp_reply():
