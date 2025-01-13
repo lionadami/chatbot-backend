@@ -1,6 +1,7 @@
 from flask import Flask, request
 import openai
 import os
+from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 from config import THERAPIST_PROMPT
 
@@ -9,10 +10,27 @@ app = Flask(__name__)
 # Configure a chave da API OpenAI usando variáveis de ambiente
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
+# Configuração do Twilio
+twilio_account_sid = os.getenv('TWILIO_ACCOUNT_SID')
+twilio_auth_token = os.getenv('TWILIO_AUTH_TOKEN')
+twilio_client = Client(twilio_account_sid, twilio_auth_token)
+
 @app.route('/')
 def home():
-    openai_status = "conectado" if openai.api_key else "não conectado"
-    twilio_status = "conectado"  # Suponha que as credenciais do Twilio estejam configuradas corretamente
+    # Verificação da conexão com a API OpenAI
+    try:
+        openai.Engine.list()
+        openai_status = "conectado"
+    except Exception as e:
+        openai_status = f"não conectado ({str(e)})"
+    
+    # Verificação da conexão com a API Twilio
+    try:
+        twilio_client.api.accounts.list()
+        twilio_status = "conectado"
+    except Exception as e:
+        twilio_status = f"não conectado ({str(e)})"
+    
     return f"Servidor ativo. Status da API OpenAI: {openai_status}. Status da API Twilio: {twilio_status}."
 
 @app.route('/whatsapp', methods=['POST'])
